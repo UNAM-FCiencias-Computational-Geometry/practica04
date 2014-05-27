@@ -609,3 +609,94 @@ list* rb_tree_to_list(rb_tree* tree)
 
 	return list;
 }
+
+//Inicio de implementaciones extra
+void rb_inorden(rb_node* t){
+	if (t->left != &sentinel)
+		rb_inorden(t->left);
+	printf("El punto es: (%f,%f)\n",t->element->x,t->element->y);
+	if (t->right != &sentinel)
+		rb_inorden(t->right);
+}
+
+struct rb_node* getNext(struct rb_node* node){
+	struct rb_node* temp=node;
+	
+	//Caso en el que tiene hijo derecho
+	if(temp->right != &sentinel){
+		temp=temp->right;
+		while(temp->left!=&sentinel){
+			temp = temp->left;
+		}
+		//printf("El nodo siguiente es: (%lf,%lf)\n",temp->point->x,temp->point->y);
+		return temp;
+	}
+	
+	//No tiene hijo derecho
+	//Si tiene padre
+	if(temp->parent!=&sentinel){
+		//Si es hijo izquierdo
+		if(temp==temp->parent->left){
+			//printf("El nodo siguiente es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+			return temp->parent;
+		}else{
+			//Si es hijo derecho
+			while(temp->parent != &sentinel && temp==temp->parent->right){
+				temp=temp->parent;
+			}
+			if(temp->parent != &sentinel){
+				//printf("El nodo siguiente es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+				return temp->parent;
+			}
+		}
+	}
+	//Si no tiene padre
+	//printf("El nodo siguiente es nulo\n");
+	return NULL;
+}
+
+
+struct rb_node* getPrev(struct rb_node* node){
+	struct rb_node* temp=node;
+	
+	if(temp->left != &sentinel){
+		temp=temp->left;
+		while(temp->right != &sentinel){
+			temp = temp->right;
+		}
+		//printf("El nodo anterior es: (%lf,%lf)\n",temp->point->x,temp->point->y);
+		return temp;
+	}
+	
+	if(temp->parent!=&sentinel){
+		if(temp==temp->parent->right){
+			//printf("El nodo anterior es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+			return temp->parent;
+		}else{
+			while(temp->parent != &sentinel && temp==temp->parent->left){
+				temp=temp->parent;
+			}
+			if(temp->parent != &sentinel){
+				//printf("El nodo anterior es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+				return temp;
+			}
+		}
+	}
+	//printf("El nodo anterior es nulo\n");
+	return NULL;
+}
+
+rb_node* rb_split_node(rb_node* node, double y, double y1){
+	while(y > node->element->y && node->right!= &sentinel){
+		node=node->right;
+	}
+	while(y1 <node->element->y && node->left!= &sentinel){
+		node=node->left;
+	}
+	
+	printf("El split_node es: (%lf,%lf)\n",node->element->x,node->element->y);
+	return node;
+}
+
+
+

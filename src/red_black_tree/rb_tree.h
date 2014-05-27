@@ -98,4 +98,9 @@ vertex* rb_max(rb_tree* tree);
  */
 list* rb_tree_to_list(rb_tree* tree);
 
+/**
+ * Nos imprime el inorden de un nodo rojo negro
+ */
+ void rb_inorden(rb_node* tree);
+
 #endif

@@ -95,4 +95,9 @@ list* two_d_range_query(ra_tree* ra_tree, double x, double x1,
  */
 void report_tree(list* list_of_points, rb_node* subtree);
 
+/**
+ * Imprime el inorden de un nodo de rangos 
+ */
+void inorden(ra_node* t);
+
 #endif
