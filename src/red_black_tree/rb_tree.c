@@ -619,6 +619,20 @@ void rb_inorden(rb_node* t){
 		rb_inorden(t->right);
 }
 
+
+void rb_range_query(rb_node* t, double y,double y1, 
+	list* reported_points){
+	if (t->left != &sentinel)
+		rb_range_query(t->left,y,y1,reported_points);
+		
+	if(t->element->y <= y && t->element->y<=y1)
+		push_back(reported_points, t->element);
+	printf("El punto es: (%f,%f)\n",t->element->x,t->element->y);
+	if (t->right != &sentinel)
+		rb_range_query(t->right,y,y1,reported_points);
+	
+}
+
 struct rb_node* getNext(struct rb_node* node){
 	struct rb_node* temp=node;
 	
@@ -694,7 +708,7 @@ rb_node* rb_split_node(rb_node* node, double y, double y1){
 		node=node->left;
 	}
 	
-	printf("El split_node es: (%lf,%lf)\n",node->element->x,node->element->y);
+	printf("El split_node Y para y=%lf y y1=%f es: (%lf,%lf)\n",y,y1,node->element->x,node->element->y);
 	return node;
 }
 

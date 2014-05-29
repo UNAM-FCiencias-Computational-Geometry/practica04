@@ -68,7 +68,7 @@ int main(void)
 	
 	
 	ra_tree* range_tree = build_2d_range_tree(set_of_points);
-
+	
 	double x, x1, y, y1;
 	x = 1.0;
 	x1 = 4.0;
@@ -77,6 +77,7 @@ int main(void)
 	y1 = 2.0;
 
 	list* points = two_d_range_query(range_tree, x, x1, y, y1);
+	
 	
 	return EXIT_SUCCESS;
 }
