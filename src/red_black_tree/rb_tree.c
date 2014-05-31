@@ -625,9 +625,11 @@ void rb_range_query(rb_node* t, double y,double y1,
 	if (t->left != &sentinel)
 		rb_range_query(t->left,y,y1,reported_points);
 		
-	if(t->element->y <= y && t->element->y<=y1)
+	if(t->element->y >= y && t->element->y <= y1){
 		push_back(reported_points, t->element);
-	printf("El punto es: (%f,%f)\n",t->element->x,t->element->y);
+		//printf("El punto es: (%f,%f)\n",t->element->x,t->element->y);
+	}
+	
 	if (t->right != &sentinel)
 		rb_range_query(t->right,y,y1,reported_points);
 	

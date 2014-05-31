@@ -88,7 +88,6 @@ ra_tree* build_2d_range_tree(list* set_of_points)
 			vertex* temp;
 			while(!empty_list(set_of_points)){
 				temp=pick_front(set_of_points);
-				//printf("El vertice insertado es: (%lf,%lf)\n",temp->x,temp->y);
 				rb_insert(x_ordered,temp);
 				pop_front(set_of_points);
 			}
@@ -96,7 +95,6 @@ ra_tree* build_2d_range_tree(list* set_of_points)
 			//rb_inorden(x_ordered);
 			while(!empty_rb_tree(x_ordered)){
 				temp=rb_min(x_ordered);
-				//printf("El vertice es: (%lf,%lf)\n",temp->x,temp->y);
 				push_back(x_ordered_list,temp);
 				rb_delete(x_ordered,temp);
 			}
@@ -214,12 +212,13 @@ rb_node* find_split_node_1d(rb_tree* tree, double y, double y1)
 //Funcion extra
 ra_node* ra_split_node(ra_node* node, double x, double x1){
 	
+	while(x1 < node->x_mid->x && node->left!= NULL){
+		node=node->left;
+	}
 	while(x > node->x_mid->x && node->right!= NULL){
 		node=node->right;
 	}
-	while(x1 <node->x_mid->x && node->left!= NULL){
-		node=node->left;
-	}
+	
 	
 	printf("El split_node X para x=%lf y x1=%lf es: (%lf,%lf)\n",x,x1,node->x_mid->x,node->x_mid->y);
 	return node;	
@@ -246,7 +245,6 @@ ra_node* find_split_node_2d(ra_tree* ra_tree, double x, double x1)
 
 void one_d_range_query(rb_tree* tree, double y, double y1, list* report_points)
 {
-	report_points=init_double_linked_list();
 	if (tree == NULL )
 		return NULL;
 		if(y<=y1)
@@ -257,44 +255,68 @@ void one_d_range_query(rb_tree* tree, double y, double y1, list* report_points)
 
 
 
-int ra_is_leaf(ra_node* node){
+int ra_isLeaf(ra_node* node){
 	return node->left == NULL && node->right == NULL;
 }
 
 void aux_range_query(ra_tree* ra_tree, double x, double x1,
 						double y, double y1, list* report_points){
-			
+
 	ra_node *split_x=init_ra_node();
 	printf("Coordinates: x=%lf,x1=%lf, y=%lf, y1=%lf\n",x,x1,y,y1);
 	 //1. νsplit ←FINDSPLITNODE(T,a,b)
 	split_x=find_split_node_2d(ra_tree,x,x1);
 	 //2. if νsplit is a leaf
-	 if(ra_is_leaf(split_x)){
+	 if(ra_isLeaf(split_x)){
 	 //3.     then Check if the point stored at νsplit must be reported.
-		if(split_x->x_mid->x<= x1 && split_x->x_mid->x >=x)
+		if(split_x->x_mid->x<= x1 && split_x->x_mid->x >=x && split_x->x_mid->y<= y1 && split_x->x_mid->y >= y){
 			push_front(report_points,split_x->x_mid);
+			printf("La hoja es: (%lf,%lf)\n",split_x->x_mid->x,split_x->x_mid->y);
+		}
 			
 	 //4. else (∗Follow the path to x and call 1DRANGEQUERY on the 
 	 //         subtrees right of the path. ∗)
 		}else{
 	//5. ν ← lc(νsplit )
+			if(split_x->x_mid->x<=x1 && split_x->x_mid->x >=x && split_x->x_mid->y<= y1 && split_x->x_mid->y >= y){
+				push_front(report_points,split_x->x_mid);
+				//printf("El nodo es: (%lf,%lf)\n",split_x->x_mid->x,split_x->x_mid->y);
+			}
 			ra_node *temp_split=init_ra_node();
 			temp_split=split_x->left;
 			
 	//6. while ν is not a leaf
-			while(temp_split!= NULL && !ra_is_leaf(temp_split)){
+			while(temp_split!= NULL && !ra_isLeaf(temp_split)){
 	//7. do if x <= xν
 	//8.       then 1DRANGEQUERY(Tassoc(rc(ν)),[y : y'])
 	//9.            ν ← lc(ν)
-				if(temp_split->x_mid->x >x){
-					rb_range_query(temp_split->tree_assoc->root->right,y,y1,report_points);
+				if(temp_split->x_mid->x >= x){
+					printf("En el if\n");
+					one_d_range_query(temp_split->right->tree_assoc,y,y1,report_points);
+					//rb_range_query(temp_split->tree_assoc->root->right,y,y1,report_points);
 					temp_split=temp_split->left;
 				}
 	//10.    else ν←rc(ν)
-				else
-						temp_split=temp_split->right;			
+				else{
+						temp_split=temp_split->right;
+						printf("En el else\n");
+					}			
 			}
-		}							
+		}
+		
+	rb_tree* order=init_rb_tree(X);
+	list* points= create_copy_list(report_points);
+	int c=0;
+	while(!empty_list(points)){
+		rb_insert(order,pick_front(points));
+		pop_front(points);
+	}
+	while(!empty_rb_tree(order)){
+		vertex* v=rb_min(order);
+		printf("El vértice es: (%lf,%lf)\n",v->x,v->y);
+		rb_delete(order,v);
+	}
+									
 }
 
 list* two_d_range_query(ra_tree* ra_tree, double x, double x1,
@@ -311,12 +333,19 @@ list* two_d_range_query(ra_tree* ra_tree, double x, double x1,
 		return report_points;
 	
 	if(x<=x1)
-		aux_range_query(ra_tree,x,x1,y,y1,report_points);
+		if(y<=y1)
+			aux_range_query(ra_tree,x,x1,y,y1,report_points);
+		else
+			aux_range_query(ra_tree,x,x1,y1,y,report_points);
 	else
-		aux_range_query(ra_tree,x1,x,y,y1,report_points);
+		if(y<=y1)
+			aux_range_query(ra_tree,x1,x,y,y1,report_points);
+		else
+			aux_range_query(ra_tree,x1,x,y1,y,report_points);
 	
 	return report_points;
 }
+
 
 void report_tree(list* list_of_points, rb_node* subtree) 
 {
