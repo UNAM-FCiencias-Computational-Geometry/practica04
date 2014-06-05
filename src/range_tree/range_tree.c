@@ -81,8 +81,8 @@ ra_tree* build_2d_range_tree(list* set_of_points)
 {	
 	if (set_of_points!=NULL){
 		ra_tree* range_tree= init_ra_tree();
-		
 		if(!empty_list(set_of_points)){
+			
 			rb_tree *x_ordered= init_rb_tree(X);
 			list *x_ordered_list=init_double_linked_list();
 			vertex* temp;
@@ -91,27 +91,17 @@ ra_tree* build_2d_range_tree(list* set_of_points)
 				rb_insert(x_ordered,temp);
 				pop_front(set_of_points);
 			}
-			//printf("\n\nMETIENDO\n");
-			//rb_inorden(x_ordered);
+			destroy_double_linked_list(set_of_points);
+			
 			while(!empty_rb_tree(x_ordered)){
 				temp=rb_min(x_ordered);
 				push_back(x_ordered_list,temp);
 				rb_delete(x_ordered,temp);
 			}
+			
 			range_tree->root=build_2d_range_tree_node(x_ordered_list);
-			
-			//printf("\n\n\nARBOL de rangos\n");
-			//inorden(range_tree->root);
-			
-			//find_split_node_2d(range_tree,2300,2000);		
-			//printf("\n\n\nARBOL ASOCIADO\n");
-			//rb_inorden(range_tree->root->tree_assoc->root);
-			
-			//find_split_node_1d(range_tree->root->tree_assoc,8500,8000);
-			
-			return range_tree;
-				
-	
+
+			return range_tree;	
 		}
 		range_tree->root=NULL;
 		return range_tree;
@@ -291,31 +281,19 @@ void aux_range_query(ra_tree* ra_tree, double x, double x1,
 	//8.       then 1DRANGEQUERY(Tassoc(rc(ν)),[y : y'])
 	//9.            ν ← lc(ν)
 				if(temp_split->x_mid->x >= x){
-					printf("En el if\n");
-					one_d_range_query(temp_split->right->tree_assoc,y,y1,report_points);
+					//printf("En el if\n");
+					if(temp_split->right != NULL)
+						one_d_range_query(temp_split->right->tree_assoc,y,y1,report_points);
 					//rb_range_query(temp_split->tree_assoc->root->right,y,y1,report_points);
 					temp_split=temp_split->left;
 				}
 	//10.    else ν←rc(ν)
 				else{
 						temp_split=temp_split->right;
-						printf("En el else\n");
+						//printf("En el else\n");
 					}			
 			}
 		}
-		
-	rb_tree* order=init_rb_tree(X);
-	list* points= create_copy_list(report_points);
-	int c=0;
-	while(!empty_list(points)){
-		rb_insert(order,pick_front(points));
-		pop_front(points);
-	}
-	while(!empty_rb_tree(order)){
-		vertex* v=rb_min(order);
-		printf("El vértice es: (%lf,%lf)\n",v->x,v->y);
-		rb_delete(order,v);
-	}
 									
 }
 
@@ -342,6 +320,19 @@ list* two_d_range_query(ra_tree* ra_tree, double x, double x1,
 			aux_range_query(ra_tree,x1,x,y,y1,report_points);
 		else
 			aux_range_query(ra_tree,x1,x,y1,y,report_points);
+	
+	rb_tree* order=init_rb_tree(X);
+	list* points= create_copy_list(report_points);
+	int c=0;
+	while(!empty_list(points)){
+		rb_insert(order,pick_front(points));
+		pop_front(points);
+	}
+	while(!empty_rb_tree(order)){
+		vertex* v=rb_min(order);
+		printf("El vértice es: (%lf,%lf)\n",v->x,v->y);
+		rb_delete(order,v);
+	}
 	
 	return report_points;
 }
